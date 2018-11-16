@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+{{>head}}
+
+<body class="container-fluid">
+  {{>navbar}}
+  <header class="row hero-profile">
+    <div class="headline ml-5">
+      <h1 class="display-1">Profile</h1>
+      <h5></h5>
+    </div>
+  </header>
+  <section id="dashboard-copy" class="row mt-5 ">
+    <div class="col-lg-6 ">
+      <div class="">
+        <h2> Welcome to {{user.firstName}}!</h2>
+        <img class="preview-image" src="{{user.image}}=s120-c" alt="">
+        <p>Here you will find all our available reservations that have been created by dog owners. Please select the reservations that you are able to fulfill</p>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card ">
+        <h3 class="card-header">
+          Dates Accepted
+        </h3>
+        <ul id="reservations">
+          {{#reservations}}
+            <li class="reservation">
+              <img class="preview-image" src="{{image}}=s50-c" alt="">
+              <h2>{{dogName}}</h2>
+              <h4>{{formatted}}</h4>
+              {{#isDogSitter}}
+                <button class="btn btn-success" onclick="acceptReservation('{{id}}', '{{user.id}}')">Accept</button>
+              {{/isDogSitter}}
+            </li>
+          {{/reservations}}
+        </ul>
+      </div>
+
+  </section>
+
+
+  <!-- Turbo library imports: jQuery, Turbo CDN, sample app.js.
+  NOTE: These should be minified in a build script -->
+  <script type="text/javascript" src="/js/jquery.js"></script>
+
+  <!-- For file uploading. Remove if file upload not necessry -->
+  <script type="text/javascript" src="/js/dropzone.js"></script>
+
+  <!-- Turbo CDN. Better to use CDN than to store locally. -->
+  <script type="text/javascript" src="https://cdn.turbo360-dev.com/dist/turbo.min.js"></script>
+
+  <!-- Your app specific code -->
+  <script type="text/javascript" src="/js/app.js"></script>
+  <script type="text/javascript">
+    function acceptReservation(id, sitter) {
+      $.ajax({
+        url: '/api/reservations/' + id,
+        type: 'PUT',
+        data: {
+          'sitter': sitter
+        },
+        success: function(result) {
+          console.log(result)
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

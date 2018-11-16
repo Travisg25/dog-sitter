@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+{{>head}}
+<body class="container-fluid">
+	{{>navbar}}
+	<header class="row hero-dashboard">
+	  <div class="headline ml-5">
+	    <h1 class="display-1">Dashboard</h1>
+	    <h5></h5>
+	  </div>
+	</header>
+
+	<section id="dashboard-copy" class="row ">
+		<div class="col-lg-6 ">
+			<div class="">
+				<h2> Hello {{user.firstName}}, Welcome to the Dashboard</h2>
+				<p>Use this page to create new appointments with your prefered dog sitters.</p>
+			</div>
+		</div>
+		<!-- Request Form -->
+		<div class="col-lg-6">
+			{{#isDogOwner}}
+				<div class="card ">
+					<h3 class="card-header">
+						Request
+					</h3>
+					<small class="card-header">Add a date you'd like a sitter.</small>
+					<div class="card-body">
+						<form method="post" action="/api/reservations">
+							<div class="form-group">
+								<img id="dog-preview-img" src="" alt="">
+								<button class="btn btn-success" id="btn-reservation-upload" type="button" name="button">Upload Pup Pic</button>
+
+								<div class="form-group">
+									<input id="dog-image-input" style="display:none" type="text" class="form-control" name="image">
+								</div>
+								<label>Dog's Name</label>
+								<input name="dogName" type="text" class="form-control text-capitalize" placeholder="Enter your Dogs name">
+							</div>
+							<div class="form-group">
+								<label>Date</label>
+								<input id="date-input" name="date" type="date" class="form-control" placeholder="Add Date">
+							</div>
+							<!-- Hidden for Formatted date-->
+							<div class="form-group">
+								<input style="display:none;" id="formatted" name="formatted" type="text" class="form-control" placeholder="Add Date">
+							</div>
+							<button type="submit" class="btn btn-primary btn-block">Reserve</button>
+						</form>
+					</div>
+				</div>
+			{{/isDogOwner}}
+		</div>
+	</section>
+<!-- Dog Owner's Resevations -->
+	<section class="row mb-5">
+		<div class="col-lg-6">
+			<div id="update-form" class="mt-5">
+				<div class="col">
+					<div class="">
+						<h3 class="card-header">
+							Update Account
+						</h3>
+						<div class="card-body">
+							<form method="post" action="/auth/update">
+								<button class="btn btn-success" id="btn-upload">Upload a Picture</button>
+								<img src="{{user.image}}=s120-c" id="preview-image" alt="">
+								<div class="form-group">
+									<input id="image-input" style="display:none" name="image" type="text" class="form-control" placeholder="{{user.image}}" value="{{user.image}}">
+								</div>
+								<div class="form-group">
+									<label>First Name</label>
+									<input name="firstName" type="firstName" class="form-control text-capitalize" placeholder="{{user.firstName}}" value="{{user.firstName}}">
+								</div>
+								<div class="form-group">
+									<label>Last Name </label>
+									<input name="lastName" type="lastName" class="form-control text-capitalize" placeholder="{{user.lastName}} " value="{{user.lastName}}">
+								</div>
+								<div class="form-group">
+									<label>Email address</label>
+									<input name="email" type="email" class="form-control" placeholder="{{user.email}}" value="{{user.email}}">
+									<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+								</div>
+
+								<button type="submit" class="btn btn-primary btn-block mt-5">Update</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Left Gap -->
+		</div>
+		<div class="col-lg-6">
+			<h3 style="text-align: center">Reservations</h3>
+			<ul id="reservations">
+				{{#reservations}}
+					<li class="reservation">
+						<img src="{{image}}=s50-c" alt="">
+						<h2>{{dogName}}</h2>
+						{{#sitter}}
+							<a href="/profile/{{sitter}}" class="btn">Accepted</a>
+						{{/sitter}}
+						<h4>{{formatted}}</h4>
+					</li>
+				{{/reservations}}
+			</ul>
+		</div>
+	</section>
+{{>spacer}}
+{{>footer}}
+	<!-- Turbo library imports: jQuery, Turbo CDN, sample app.js.
+  NOTE: These should be minified in a build script -->
+	<script type="text/javascript" src="/js/jquery.js"></script>
+
+	<!-- For file uploading. Remove if file upload not necessry -->
+	<script type="text/javascript" src="/js/dropzone.js"></script>
+
+	<!-- Turbo CDN. Better to use CDN than to store locally. -->
+	<script type="text/javascript" src="https://cdn.turbo360-dev.com/dist/turbo.min.js"></script>
+
+	<!-- Your app specific code -->
+	<script type="text/javascript" src="/js/app.js"></script>
+	<script type="text/javascript">
+		(function() {
+			var turbo = Turbo({
+				site_id: '5bce329073874f0013800bf4'
+			})
+			$('#date-input').change(function() {
+				let formatted = new Date(this.value).toLocaleString('en-US', {
+					weekday: "short",
+					month: "long",
+					day: "numeric",
+					year: "numeric"
+				})
+				$('#formatted').attr('value', formatted);
+				console.log($('#formatted').val())
+			})
+			$('#btn-upload').click(function(event) {
+				event.preventDefault()
+				$('#btn-upload').attr('disabled', true)
+
+				turbo.uploadFile({
+					apiKey: '1a19c3fd-3548-4122-b6d9-995ab4ea4864',
+					completion: function(err, data) {
+						if (err) {
+							alert('Error:' + err.message)
+							return
+						}
+						$('#btn-upload').attr('disabled', false)
+						$('#preview-image').attr('src', data.result.url + "=s120-c")
+						$('#image-input').attr('value', data.result.url)
+						console.log(data.result.url)
+					}
+				})
+			})
+
+			$('#btn-reservation-upload').click(function(event) {
+				event.preventDefault()
+				$('#btn-reservation-upload').attr('disabled', true)
+
+				turbo.uploadFile({
+					apiKey: '1a19c3fd-3548-4122-b6d9-995ab4ea4864',
+					completion: function(err, data) {
+						if (err) {
+							alert('Error:' + err.message)
+							return
+						}
+						$('#btn-reservation-upload').attr('disabled', false)
+						$('#dog-preview-image').attr('src', data.result.url + "=s80-c")
+						$('#dog-image-input').attr('value', data.result.url)
+						console.log(data.result.url)
+					}
+				})
+			})
+		})()
+	</script>
+</body>
+
+</html>
